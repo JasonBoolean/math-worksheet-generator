@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Test</title>
+    <style>
+        body { margin: 20px; font-family: Arial, sans-serif; }
+        button { padding: 10px 15px; margin: 5px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        canvas { border: 2px solid #333; margin: 10px 0; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Quick Test - 快速验证</h1>
+    
+    <div>
+        <button onclick="testRender()">测试渲染</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <canvas id="test-canvas" width="595" height="400"></canvas>
+    
+    <div class="log" id="log"></div>
+
+    <!-- 加载依赖 -->
+    <script src="js/utils/constants.js?v=3"></script>
+    <script src="js/models/MathProblem.js?v=3"></script>
+    <script src="js/core/RenderingEngine.js?v=3"></script>
+
+    <script>
+        let engine;
+        
+        function log(msg) {
+            console.log(msg);
+            const logEl = document.getElementById('log');
+            if (logEl) {
+                logEl.innerHTML += new Date().toLocaleTimeString() + ': ' + msg + '\n';
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+        }
+        
+        function clearLog() {
+            const logEl = document.getElementById('log');
+            if (logEl) {
+                logEl.innerHTML = '';
+            }
+        }
+        
+        function init() {
+            try {
+                log('初始化测试...');
+                
+                const canvas = document.getElementById('test-canvas');
+                engine = new RenderingEngine();
+                engine.initialize(canvas);
+                engine.setPreviewSize();
+                
+                log('RenderingEngine 初始化成功');
+                
+            } catch (error) {
+                log('初始化失败: ' + error.message);
+                console.error(error);
+            }
+        }
+        
+        function testRender() {
+            clearLog();
+            log('开始渲染测试...');
+            
+            if (!engine) {
+                log('错误: 引擎未初始化');
+                return;
+            }
+            
+            try {
+                // 清空并渲染背景
+                engine.clear();
+                engine.renderSolidBackground('#ffffff');
+                log('背景渲染完成');
+                
+                // 创建测试题目
+                const problems = [
+                    new MathProblem(8, 5, '+', 13),
+                    new MathProblem(15, 7, '-', 8),
+                    new MathProblem(12, 9, '+', 21),
+                    new MathProblem(20, 6, '-', 14)
+                ];
+                
+                log('创建了 ' + problems.length + ' 个测试题目');
+                
+                // 计算布局
+                const columns = 2;
+                const columnWidth = 250;
+                const rowHeight = 60;
+                const startX = 30;
+                const startY = 30;
+                
+                // 渲染题目
+                problems.forEach((problem, index) => {
+                    const column = index % columns;
+                    const row = Math.floor(index / columns);
+                    
+                    const x = startX + column * columnWidth;
+                    const y = startY + row * rowHeight;
+                    
+                    const position = { x, y, width: columnWidth - 20, height: rowHeight - 10 };
+                    
+                    log(`渲染题目 ${index + 1}: "${problem.toString()}" 在位置 (${x}, ${y})`);
+                    engine.renderProblem(problem, position, false);
+                });
+                
+                log('渲染测试完成');
+                
+            } catch (error) {
+                log('渲染测试失败: ' + error.message);
+                console.error(error);
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

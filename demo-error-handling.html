@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错误处理系统演示</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .demo-section h2 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .stats-box {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .stats-box pre {
+            margin: 0;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+            color: white;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        #loading-overlay p {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ 错误处理和进度反馈系统演示</h1>
+        <p class="subtitle">体验完整的错误处理、重试机制和进度指示功能</p>
+        
+        <!-- Error Classification Demo -->
+        <div class="demo-section">
+            <h2>📋 错误分类演示</h2>
+            <p>点击按钮触发不同类型的错误，查看系统如何分类和处理</p>
+            <div class="button-grid">
+                <button class="btn-danger" onclick="triggerValidationError()">验证错误</button>
+                <button class="btn-danger" onclick="triggerRenderingError()">渲染错误</button>
+                <button class="btn-danger" onclick="triggerExportError()">导出错误</button>
+                <button class="btn-danger" onclick="triggerStorageError()">存储错误</button>
+                <button class="btn-danger" onclick="triggerCompatibilityError()">兼容性错误</button>
+                <button class="btn-danger" onclick="triggerSystemError()">系统错误</button>
+            </div>
+        </div>
+        
+        <!-- Retry Mechanism Demo -->
+        <div class="demo-section">
+            <h2>🔄 重试机制演示</h2>
+            <p>模拟失败的操作，观察自动重试机制（最多3次，指数退避）</p>
+            <div class="button-grid">
+                <button class="btn-warning" onclick="demoRetrySuccess()">重试成功场景</button>
+                <button class="btn-warning" onclick="demoRetryFailure()">重试失败场景</button>
+                <button class="btn-warning" onclick="demoNoRetry()">不可重试错误</button>
+            </div>
+        </div>
+        
+        <!-- Progress Indicator Demo -->
+        <div class="demo-section">
+            <h2>📊 进度指示演示</h2>
+            <p>体验不同的进度指示场景</p>
+            <div class="button-grid">
+                <button class="btn-primary" onclick="demoSimpleProgress()">简单进度</button>
+                <button class="btn-primary" onclick="demoSteppedProgress()">分步进度</button>
+                <button class="btn-primary" onclick="demoMultipleOperations()">多操作并发</button>
+                <button class="btn-primary" onclick="demoProgressWithError()">进度中断</button>
+            </div>
+        </div>
+        
+        <!-- Toast Notifications Demo -->
+        <div class="demo-section">
+            <h2>💬 Toast通知演示</h2>
+            <p>查看不同类型的Toast通知</p>
+            <div class="button-grid">
+                <button class="btn-success" onclick="showSuccessToast()">成功通知</button>
+                <button class="btn-danger" onclick="showErrorToast()">错误通知</button>
+                <button class="btn-warning" onclick="showWarningToast()">警告通知</button>
+                <button class="btn-info" onclick="showInfoToast()">信息通知</button>
+            </div>
+        </div>
+        
+        <!-- Recovery Demo -->
+        <div class="demo-section">
+            <h2>🔧 错误恢复演示</h2>
+            <p>演示错误恢复机制</p>
+            <div class="button-grid">
+                <button class="btn-info" onclick="demoSafeDefaults()">安全默认值</button>
+                <button class="btn-info" onclick="demoGracefulDegradation()">优雅降级</button>
+                <button class="btn-info" onclick="demoRecoverySuggestions()">恢复建议</button>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="demo-section">
+            <h2>📈 错误统计</h2>
+            <p>查看错误日志和统计信息</p>
+            <div class="button-grid">
+                <button class="btn-info" onclick="showErrorStats()">显示统计</button>
+                <button class="btn-info" onclick="showErrorLog()">显示日志</button>
+                <button class="btn-danger" onclick="clearErrorLog()">清空日志</button>
+            </div>
+            <div id="stats-display" class="stats-box" style="display: none;">
+                <pre id="stats-content"></pre>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>正在处理...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils/ErrorHandler.js"></script>
+    <script src="js/utils/ProgressIndicator.js"></script>
+    
+    <script>
+        // Initialize
+        globalProgressIndicator.initialize();
+        
+        // Setup error handler UI callback
+        globalErrorHandler.setUICallback((data) => {
+            if (data.type === 'error') {
+                globalProgressIndicator.showError(data.message);
+            } else if (data.type === 'success') {
+                globalProgressIndicator.showSuccess(data.message);
+            } else if (data.type === 'warning') {
+                globalProgressIndicator.showWarning(data.message);
+            } else if (data.type === 'info') {
+                globalProgressIndicator.showInfo(data.message);
+            }
+        });
+        
+        // Error Classification Demos
+        function triggerValidationError() {
+            const error = new AppError(
+                '难度级别无效：必须是 within10, within20, within50 或 within100',
+                ErrorTypes.VALIDATION,
+                ErrorSeverity.LOW,
+                { field: 'difficulty', value: 'invalid' }
+            );
+            globalErrorHandler.handleError(error);
+        }
+        
+        function triggerRenderingError() {
+            const error = new AppError(
+                'Canvas渲染失败：上下文为空',
+                ErrorTypes.RENDERING,
+                ErrorSeverity.MEDIUM
+            );
+            globalErrorHandler.handleError(error);
+        }
+        
+        function triggerExportError() {
+            const error = new AppError(
+                '图片导出失败：Blob转换错误',
+                ErrorTypes.EXPORT,
+                ErrorSeverity.MEDIUM
+            );
+            globalErrorHandler.handleError(error);
+        }
+        
+        function triggerStorageError() {
+            const error = new AppError(
+                'QuotaExceededError: localStorage存储空间已满',
+                ErrorTypes.STORAGE,
+                ErrorSeverity.MEDIUM
+            );
+            globalErrorHandler.handleError(error);
+        }
+        
+        function triggerCompatibilityError() {
+            const error = new AppError(
+                'Canvas API在此浏览器中不受支持',
+                ErrorTypes.COMPATIBILITY,
+                ErrorSeverity.HIGH
+            );
+            globalErrorHandler.handleError(error);
+        }
+        
+        function triggerSystemError() {
+            const error = new AppError(
+                '系统内部错误：未知异常',
+                ErrorTypes.SYSTEM,
+                ErrorSeverity.HIGH
+            );
+            globalErrorHandler.handleError(error);
+        }
+        
+        // Retry Mechanism Demos
+        async function demoRetrySuccess() {
+            let attempts = 0;
+            const operation = async () => {
+                attempts++;
+                console.log(`尝试 ${attempts}/3`);
+                if (attempts < 3) {
+                    throw new Error('操作失败');
+                }
+                return '成功！';
+            };
+            
+            try {
+                globalProgressIndicator.showInfo('开始重试演示（将在第3次成功）');
+                const result = await globalErrorHandler.retryOperation(
+                    'demo-retry-success',
+                    operation,
+                    new AppError('测试错误', ErrorTypes.RENDERING)
+                );
+                globalProgressIndicator.showSuccess(`重试成功！结果: ${result}`);
+            } catch (error) {
+                globalProgressIndicator.showError('重试失败: ' + error.message);
+            }
+        }
+        
+        async function demoRetryFailure() {
+            const operation = async () => {
+                throw new Error('操作总是失败');
+            };
+            
+            try {
+                globalProgressIndicator.showInfo('开始重试演示（将全部失败）');
+                await globalErrorHandler.retryOperation(
+                    'demo-retry-failure',
+                    operation,
+                    new AppError('测试错误', ErrorTypes.RENDERING)
+                );
+            } catch (error) {
+                globalProgressIndicator.showError('所有重试都失败了');
+            }
+        }
+        
+        function demoNoRetry() {
+            const error = new AppError(
+                '这是一个验证错误，不会重试',
+                ErrorTypes.VALIDATION,
+                ErrorSeverity.LOW
+            );
+            globalErrorHandler.handleError(error, {
+                retry: true,
+                operationId: 'no-retry-demo',
+                retryFn: () => console.log('不应该执行')
+            });
+        }
+        
+        // Progress Indicator Demos
+        async function demoSimpleProgress() {
+            globalProgressIndicator.startOperation('simple', '正在处理...', { 
+                showProgress: true,
+                total: 100
+            });
+            
+            for (let i = 0; i <= 100; i += 10) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+                globalProgressIndicator.updateProgress('simple', i);
+            }
+            
+            globalProgressIndicator.completeOperation('simple', '处理完成！');
+        }
+        
+        async function demoSteppedProgress() {
+            const steps = [
+                { progress: 0, message: '正在初始化...' },
+                { progress: 25, message: '正在加载配置...' },
+                { progress: 50, message: '正在生成数据...' },
+                { progress: 75, message: '正在渲染界面...' },
+                { progress: 100, message: '完成！' }
+            ];
+            
+            globalProgressIndicator.startOperation('stepped', steps[0].message, { 
+                showProgress: true,
+                total: 100
+            });
+            
+            for (const step of steps) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                globalProgressIndicator.updateProgress('stepped', step.progress, step.message);
+            }
+            
+            globalProgressIndicator.completeOperation('stepped', '所有步骤完成！');
+        }
+        
+        async function demoMultipleOperations() {
+            globalProgressIndicator.startOperation('op1', '操作 1 进行中...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            globalProgressIndicator.startOperation('op2', '操作 2 进行中...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            globalProgressIndicator.completeOperation('op1', '操作 1 完成');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            globalProgressIndicator.startOperation('op3', '操作 3 进行中...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            globalProgressIndicator.completeOperation('op2', '操作 2 完成');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            globalProgressIndicator.completeOperation('op3', '操作 3 完成');
+        }
+        
+        async function demoProgressWithError() {
+            globalProgressIndicator.startOperation('error-demo', '正在处理...', { 
+                showProgress: true,
+                total: 100
+            });
+            
+            for (let i = 0; i <= 60; i += 20) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                globalProgressIndicator.updateProgress('error-demo', i, `进度 ${i}%`);
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
+            globalProgressIndicator.failOperation('error-demo', '操作失败！');
+        }
+        
+        // Toast Notifications
+        function showSuccessToast() {
+            globalProgressIndicator.showSuccess('操作成功完成！这是一个成功消息。');
+        }
+        
+        function showErrorToast() {
+            globalProgressIndicator.showError('发生错误！这是一个错误消息。');
+        }
+        
+        function showWarningToast() {
+            globalProgressIndicator.showWarning('注意！这是一个警告消息。');
+        }
+        
+        function showInfoToast() {
+            globalProgressIndicator.showInfo('提示：这是一个信息消息。');
+        }
+        
+        // Recovery Demos
+        function demoSafeDefaults() {
+            const badConfig = { difficulty: 'invalid', layout: null };
+            const safeConfig = globalErrorHandler.fallbackToSafeDefaults(badConfig);
+            globalProgressIndicator.showSuccess('已回退到安全默认值');
+            console.log('安全配置:', safeConfig);
+        }
+        
+        function demoGracefulDegradation() {
+            globalErrorHandler.gracefulDegradation('高级功能', () => {
+                console.log('使用基础功能替代');
+                return '基础功能';
+            });
+        }
+        
+        function demoRecoverySuggestions() {
+            const error = new AppError(
+                '渲染失败',
+                ErrorTypes.RENDERING,
+                ErrorSeverity.MEDIUM
+            );
+            const suggestions = error.getRecoverySuggestions();
+            globalProgressIndicator.showInfo('恢复建议: ' + suggestions[0]);
+            console.log('所有建议:', suggestions);
+        }
+        
+        // Statistics
+        function showErrorStats() {
+            const stats = globalErrorHandler.getErrorStats();
+            const display = document.getElementById('stats-display');
+            const content = document.getElementById('stats-content');
+            content.textContent = JSON.stringify(stats, null, 2);
+            display.style.display = 'block';
+            globalProgressIndicator.showInfo('错误统计已显示');
+        }
+        
+        function showErrorLog() {
+            const log = globalErrorHandler.exportErrorLog();
+            const display = document.getElementById('stats-display');
+            const content = document.getElementById('stats-content');
+            content.textContent = log;
+            display.style.display = 'block';
+            globalProgressIndicator.showInfo('错误日志已显示');
+        }
+        
+        function clearErrorLog() {
+            globalErrorHandler.clearErrorLog();
+            const display = document.getElementById('stats-display');
+            display.style.display = 'none';
+            globalProgressIndicator.showSuccess('错误日志已清空');
+        }
+        
+        // Welcome message
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                globalProgressIndicator.showInfo('欢迎使用错误处理系统演示！点击按钮体验各种功能。', 5000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

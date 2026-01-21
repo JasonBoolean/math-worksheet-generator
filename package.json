@@ -1,0 +1,70 @@
+{
+  "name": "math-worksheet-generator",
+  "version": "1.0.0",
+  "description": "数学练习册生成器 - 为小学生生成可打印的数学练习册",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 3000 -c-1",
+    "dev": "npx http-server . -p 3000 -c-1 -o",
+    "build": "node build.js",
+    "build:prod": "NODE_ENV=production node build.js",
+    "optimize": "npm run minify-css && npm run minify-js",
+    "minify-css": "npx clean-css-cli -o styles/main.min.css styles/main.css styles/responsive.css",
+    "minify-js": "npx terser js/**/*.js -o js/app.min.js --compress --mangle",
+    "test": "echo \"Tests will be implemented in later tasks\" && exit 0",
+    "lint": "npx eslint js/**/*.js",
+    "format": "npx prettier --write .",
+    "serve": "npx http-server . -p 8080",
+    "serve:dist": "npx http-server dist -p 8080",
+    "preview": "npm run build && npm run serve:dist",
+    "deploy": "npm run build && echo \"Ready for deployment - check dist/ directory\"",
+    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
+    "deploy:vercel": "npm run build && vercel --prod",
+    "validate": "npx html-validate index.html",
+    "clean": "rm -rf dist build-info.json"
+  },
+  "keywords": [
+    "math",
+    "worksheet",
+    "generator",
+    "education",
+    "pwa",
+    "canvas",
+    "chinese"
+  ],
+  "author": "Math Worksheet Generator Team",
+  "license": "MIT",
+  "devDependencies": {
+    "clean-css-cli": "^5.6.2",
+    "eslint": "^8.57.0",
+    "html-validate": "^8.7.4",
+    "http-server": "^14.1.1",
+    "prettier": "^3.1.1",
+    "terser": "^5.26.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/math-worksheet-generator/math-worksheet-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/math-worksheet-generator/math-worksheet-generator/issues"
+  },
+  "homepage": "https://math-worksheet-generator.github.io/math-worksheet-generator/",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ],
+  "pwa": {
+    "name": "数学练习册生成器",
+    "short_name": "数学练习册",
+    "theme_color": "#2196f3",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "start_url": "./"
+  }
+}

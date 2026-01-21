@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="数学练习册生成器 - 为小学生生成可打印的数学练习册">
+    <title>数学练习册生成器</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2196f3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="数学练习册">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>数学练习册生成器</h1>
+            <div class="header-actions">
+                <button id="install-btn" class="install-button" style="display: none;">
+                    安装应用
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Configuration Panel -->
+            <section class="config-panel">
+                <h2>配置选项</h2>
+                
+                <!-- Difficulty Selection -->
+                <div class="config-group">
+                    <label for="difficulty">难度级别:</label>
+                    <select id="difficulty" class="config-select">
+                        <option value="within10">10以内</option>
+                        <option value="within20" selected>20以内</option>
+                        <option value="within50">50以内</option>
+                        <option value="within100">100以内</option>
+                    </select>
+                </div>
+
+                <!-- Operation Type Selection -->
+                <div class="config-group">
+                    <label>运算类型:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="operation" value="addition" checked>
+                            <span>加法</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="operation" value="subtraction">
+                            <span>减法</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="operation" value="mixed">
+                            <span>加减混合</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Layout Selection -->
+                <div class="config-group">
+                    <label for="layout">页面布局:</label>
+                    <select id="layout" class="config-select">
+                        <option value="two-column" selected>两列</option>
+                        <option value="three-column">三列</option>
+                    </select>
+                </div>
+
+                <!-- Background Style Selection -->
+                <div class="config-group">
+                    <label for="background">背景样式:</label>
+                    <select id="background" class="config-select">
+                        <option value="blank" selected>空白</option>
+                        <option value="lined">横线</option>
+                        <option value="grid">方格</option>
+                        <option value="dotted">点阵</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+
+                <!-- Custom Background Upload -->
+                <div class="config-group" id="custom-background-group" style="display: none;">
+                    <label for="custom-background">上传背景图片:</label>
+                    <input type="file" id="custom-background" accept="image/*" class="file-input">
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="generate-btn" class="primary-button">
+                        生成练习册
+                    </button>
+                    <button id="export-btn" class="secondary-button" disabled>
+                        导出图片
+                    </button>
+                </div>
+            </section>
+
+            <!-- Preview Panel -->
+            <section class="preview-panel">
+                <h2>预览</h2>
+                <div class="preview-container">
+                    <canvas id="preview-canvas" class="preview-canvas"></canvas>
+                    <div id="preview-placeholder" class="preview-placeholder">
+                        <p>实时预览将在此显示</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>正在生成练习册...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="error-message" style="display: none;">
+            <div class="error-content">
+                <h3>出现错误</h3>
+                <p id="error-text"></p>
+                <button id="error-close" class="error-close">关闭</button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="success-message" class="success-message" style="display: none;">
+            <div class="success-content">
+                <h3>操作成功</h3>
+                <p id="success-text"></p>
+                <button id="success-close" class="success-close">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils/constants.js?v=12"></script>
+    <script src="js/utils/ErrorHandler.js?v=12"></script>
+    <script src="js/utils/ProgressIndicator.js?v=12"></script>
+    <script src="js/utils/MobileUtils.js?v=12"></script>
+    <script src="js/models/MathProblem.js?v=12"></script>
+    <script src="js/models/WorksheetConfig.js?v=12"></script>
+    <script src="js/core/BackgroundStyleProcessor.js?v=12"></script>
+    <script src="js/core/ProblemGenerator.js?v=12"></script>
+    <script src="js/core/LayoutEngine.js?v=12"></script>
+    <script src="js/core/RenderingEngine.js?v=12"></script>
+    <script src="js/core/ImageExporter.js?v=12"></script>
+    <script src="js/core/ConfigurationManager.js?v=12"></script>
+    <script src="js/ui/UIController.js?v=12"></script>
+    <script src="js/services/LocalStorageManager.js?v=12"></script>
+    <script src="js/services/PWAServiceManager.js?v=12"></script>
+    <script src="js/app.js?v=12"></script>
+    <script src="js/app-preview-fix.js?v=1"></script>
+</body>
+</html>

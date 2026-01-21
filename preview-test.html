@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Test</title>
+    <style>
+        body { margin: 20px; font-family: Arial, sans-serif; }
+        button { padding: 10px 15px; margin: 5px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .preview-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .preview-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 1.1rem;
+            background: white;
+        }
+        
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Preview Test - 测试预览功能</h1>
+    
+    <div>
+        <button onclick="testPreview()">测试预览</button>
+        <button onclick="showCanvas()">显示Canvas</button>
+        <button onclick="hideCanvas()">隐藏Canvas</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <div class="preview-container">
+        <canvas id="preview-canvas" class="preview-canvas" width="595" height="842"></canvas>
+        <div id="preview-placeholder" class="preview-placeholder">
+            <p>点击"测试预览"查看效果</p>
+        </div>
+    </div>
+    
+    <div class="log" id="log"></div>
+
+    <!-- 加载依赖 -->
+    <script src="js/utils/constants.js"></script>
+    <script src="js/models/MathProblem.js"></script>
+    <script src="js/core/RenderingEngine.js"></script>
+
+    <script>
+        let engine;
+        
+        function log(msg) {
+            console.log(msg);
+            const logEl = document.getElementById('log');
+            if (logEl) {
+                logEl.innerHTML += new Date().toLocaleTimeString() + ': ' + msg + '\n';
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+        }
+        
+        function clearLog() {
+            const logEl = document.getElementById('log');
+            if (logEl) {
+                logEl.innerHTML = '';
+            }
+        }
+        
+        function init() {
+            try {
+                log('初始化预览测试...');
+                
+                const canvas = document.getElementById('preview-canvas');
+                if (!canvas) {
+                    log('错误: 找不到canvas元素');
+                    return;
+                }
+                
+                engine = new RenderingEngine();
+                engine.initialize(canvas);
+                engine.setPreviewSize();
+                
+                log('RenderingEngine 初始化成功');
+                log('Canvas 尺寸: ' + canvas.width + 'x' + canvas.height);
+                log('Canvas CSS 尺寸: ' + canvas.style.width + 'x' + canvas.style.height);
+                
+            } catch (error) {
+                log('初始化失败: ' + error.message);
+                console.error(error);
+            }
+        }
+        
+        function testPreview() {
+            clearLog();
+            log('开始预览测试...');
+            
+            if (!engine) {
+                log('错误: 引擎未初始化');
+                return;
+            }
+            
+            try {
+                // 清空并渲染内容
+                engine.clear();
+                engine.renderSolidBackground('#ffffff');
+                
+                // 渲染标题
+                engine.renderText('数学练习册', { x: 50, y: 50 }, { fontSize: 32, color: '#2196f3' });
+                
+                // 渲染一些数学题目
+                const problems = [
+                    new MathProblem(8, 5, '+', 13),
+                    new MathProblem(15, 7, '-', 8),
+                    new MathProblem(12, 9, '+', 21),
+                    new MathProblem(20, 6, '-', 14)
+                ];
+                
+                problems.forEach((problem, index) => {
+                    const x = 50 + (index % 2) * 250;
+                    const y = 120 + Math.floor(index / 2) * 80;
+                    
+                    engine.renderProblem(problem, { x, y, width: 200, height: 60 }, false);
+                });
+                
+                log('内容渲染完成');
+                
+                // 显示Canvas
+                showCanvas();
+                
+            } catch (error) {
+                log('预览测试失败: ' + error.message);
+                console.error(error);
+            }
+        }
+        
+        function showCanvas() {
+            const placeholder = document.getElementById('preview-placeholder');
+            const canvas = document.getElementById('preview-canvas');
+            
+            if (placeholder) {
+                placeholder.style.display = 'none';
+                log('占位符已隐藏');
+            }
+            
+            if (canvas) {
+                canvas.style.display = 'block';
+                canvas.style.visibility = 'visible';
+                canvas.style.opacity = '1';
+                log('Canvas已显示');
+                
+                // 检查Canvas内容
+                if (engine) {
+                    const imageData = engine.context.getImageData(0, 0, 100, 100);
+                    const hasContent = imageData.data.some(pixel => pixel !== 0);
+                    log('Canvas有内容: ' + hasContent);
+                }
+            }
+        }
+        
+        function hideCanvas() {
+            const placeholder = document.getElementById('preview-placeholder');
+            const canvas = document.getElementById('preview-canvas');
+            
+            if (canvas) {
+                canvas.style.display = 'none';
+                log('Canvas已隐藏');
+            }
+            
+            if (placeholder) {
+                placeholder.style.display = 'flex';
+                log('占位符已显示');
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

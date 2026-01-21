@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+build/
+*.min.js
+*.min.css
+
+# Development files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test files
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Debug files
+debug-*.html
+test-*.html
+*-debug.html
+
+# Documentation (keep in source, exclude from build)
+*.md
+!README.md
+
+# Build artifacts
+build-info.json
