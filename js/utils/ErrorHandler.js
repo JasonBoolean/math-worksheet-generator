@@ -127,19 +127,19 @@ class ErrorHandler {
   setupGlobalHandlers() {
     // Handle uncaught errors
     window.addEventListener('error', (event) => {
-      // Prevent default error handling to avoid duplicate console errors
-      event.preventDefault();
-      
       // Skip script errors from cross-origin scripts
       if (event.message === 'Script error.' && !event.filename) {
         return;
       }
       
+      // Log error but don't prevent default to allow normal error handling
       console.error('Uncaught error:', event.error);
       
       // Only handle if we have a valid error
       if (event.error || event.message) {
-        this.handleError(
+        // Don't prevent default - let the error bubble up normally
+        // This prevents the "系统出现错误" message on every refresh
+        this.logError(
           new AppError(
             event.message || 'Uncaught error',
             ErrorTypes.SYSTEM,
@@ -157,7 +157,8 @@ class ErrorHandler {
     // Handle unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
       console.error('Unhandled promise rejection:', event.reason);
-      this.handleError(
+      // Log but don't show UI for promise rejections during page load
+      this.logError(
         new AppError(
           event.reason?.message || 'Unhandled promise rejection',
           ErrorTypes.SYSTEM,

@@ -1,25 +1,14 @@
 // Service Worker for Math Worksheet Generator PWA
-const CACHE_NAME = 'math-worksheet-generator-v1.0.0';
-const STATIC_CACHE_NAME = 'static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'dynamic-v1.0.0';
+const CACHE_NAME = 'math-worksheet-generator-v1.0.1';
+const STATIC_CACHE_NAME = 'static-v1.0.1';
+const DYNAMIC_CACHE_NAME = 'dynamic-v1.0.1';
 
-// Files to cache for offline functionality
+// Files to cache for offline functionality - only essential files
 const STATIC_FILES = [
   './',
   './index.html',
   './styles/main.css',
   './styles/responsive.css',
-  './js/utils/constants.js',
-  './js/models/MathProblem.js',
-  './js/models/WorksheetConfig.js',
-  './js/core/ProblemGenerator.js',
-  './js/core/LayoutEngine.js',
-  './js/core/RenderingEngine.js',
-  './js/core/ImageExporter.js',
-  './js/core/ConfigurationManager.js',
-  './js/ui/UIController.js',
-  './js/services/LocalStorageManager.js',
-  './js/services/PWAServiceManager.js',
   './js/app.js',
   './manifest.json'
 ];
